@@ -2,12 +2,58 @@ import AppKit
 
 func getActiveBrowserTabURLAppleScriptCommand(_ appId: String) -> String? {
 	switch appId {
-	case "com.google.Chrome", "com.google.Chrome.beta", "com.google.Chrome.dev", "com.google.Chrome.canary", "com.brave.Browser", "com.brave.Browser.beta", "com.brave.Browser.nightly", "com.microsoft.edgemac", "com.microsoft.edgemac.Beta", "com.microsoft.edgemac.Dev", "com.microsoft.edgemac.Canary", "com.mighty.app", "com.ghostbrowser.gb1", "com.bookry.wavebox", "com.pushplaylabs.sidekick", "com.operasoftware.Opera",  "com.operasoftware.OperaNext", "com.operasoftware.OperaDeveloper", "com.vivaldi.Vivaldi", "company.thebrowser.Browser":
-		return "tell app id \"\(appId)\" to get the URL of active tab of front window"
+	case "com.google.Chrome", "com.google.Chrome.beta", "com.google.Chrome.dev", "com.google.Chrome.canary", "com.brave.Browser", "com.brave.Browser.beta", "com.brave.Browser.nightly", "com.microsoft.edgemac", "com.microsoft.edgemac.Beta", "com.microsoft.edgemac.Dev", "com.microsoft.edgemac.Canary", "com.mighty.app", "com.ghostbrowser.gb1", "com.bookry.wavebox", "com.pushplaylabs.sidekick", "com.operasoftware.Opera", "com.operasoftware.OperaGX", "com.operasoftware.OperaNext", "com.operasoftware.OperaDeveloper", "com.vivaldi.Vivaldi", "ru.yandex.desktop.yandex-browser":
+		return """
+			tell app id \"\(appId)\"
+				set window_url to URL of active tab of front window
+				set window_name to title of active tab of front window
+				set window_mode to mode of front window
+				set window_data to window_url & "+++++" & window_name & "+++++" & window_mode
+			end tell
+			window_data
+			"""
 	case "com.apple.Safari", "com.apple.SafariTechnologyPreview":
-		return "tell app id \"\(appId)\" to get URL of front document"
+		return """
+			tell app id \"\(appId)\"
+				set window_url to URL of front document
+				set window_name to name of front document
+				set window_mode to "normal"
+				set window_data to window_url & "+++++" & window_name & "+++++" & window_mode
+			end tell
+			window_data
+			"""
+	case "com.kagi.kagimacOS":
+		return """
+			tell app id \"\(appId)\"
+				set window_url to URL of front document
+				set window_name to name of front window
+				set window_mode to "normal"
+				set window_data to window_url & "+++++" & window_name & "+++++" & window_mode
+			end tell
+			window_data
+			"""
+	case "company.thebrowser.Browser", "com.sigmaos.sigmaos.macos", "com.SigmaOS.SigmaOS":
+		return """
+			tell app id \"\(appId)\"
+				set window_url to URL of active tab of front window
+				set window_name to name of active tab of front window
+				set window_mode to mode of front window
+				set window_data to window_url & "+++++" & window_name & "+++++" & window_mode
+			end tell
+			window_data
+			"""
 	default:
-		return nil
+		return """
+			tell application "System Events"
+				tell (first process whose frontmost is true)
+					set window_url to ""
+					set window_name to value of attribute "AXTitle" of window 1
+					set window_mode to "normal"
+					set window_data to window_url & "+++++" & window_name & "+++++" & window_mode
+				end tell
+			end tell
+			window_data
+			"""
 	}
 }
 
@@ -87,16 +133,16 @@ let disableScreenRecordingPermission = CommandLine.arguments.contains("--no-scre
 let enableOpenWindowsList = CommandLine.arguments.contains("--open-windows-list")
 
 // Show accessibility permission prompt if needed. Required to get the complete window title.
-if !AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary) {
-	print("active-win requires the accessibility permission in “System Settings › Privacy & Security › Accessibility”.")
-	exit(1)
-}
+// if !AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary) {
+// 	print("active-win requires the accessibility permission in “System Settings › Privacy & Security › Accessibility”.")
+// 	exit(1)
+// }
 
-// Show screen recording permission prompt if needed. Required to get the complete window title.
-if !disableScreenRecordingPermission && !hasScreenRecordingPermission() {
-	print("active-win requires the screen recording permission in “System Settings › Privacy & Security › Screen Recording”.")
-	exit(1)
-}
+// // Show screen recording permission prompt if needed. Required to get the complete window title.
+// if !disableScreenRecordingPermission && !hasScreenRecordingPermission() {
+// 	print("active-win requires the screen recording permission in “System Settings › Privacy & Security › Screen Recording”.")
+// 	exit(1)
+// }
 
 guard
 	let frontmostAppPID = NSWorkspace.shared.frontmostApplication?.processIdentifier,
