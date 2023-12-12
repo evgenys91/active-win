@@ -13,7 +13,7 @@ npm install active-win
 ## Usage
 
 ```js
-const activeWindow = require('active-win');
+const activeWindow = require('@evgenys91/active-win');
 
 (async () => {
 	console.log(await activeWindow(options));
