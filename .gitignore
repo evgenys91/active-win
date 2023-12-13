@@ -2,7 +2,6 @@ node_modules
 yarn.lock
 /.build
 /*.xcodeproj
-/main
 /build
 lib/binding
 /build-tmp-napi-v3
