@@ -19,6 +19,12 @@
 							'version.lib',
 							'Dwmapi.lib',
 						],
+                        'defines': [
+							'NOMINMAX' # allow std::min/max to work
+						],
+						'cflags' : [
+							"-O2"
+						],
 					},
 				],
 			],

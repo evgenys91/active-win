@@ -71,15 +71,6 @@ func getWindowInformation(window: [String: Any], windowOwnerPID: pid_t) -> [Stri
 		"memoryUsage": window[kCGWindowMemoryUsage as String] as? Int ?? 0
 	]
 
-	// Only run the AppleScript if active window is a compatible browser.
-	if
-		let bundleIdentifier = app.bundleIdentifier,
-		let script = getActiveBrowserTabURLAppleScriptCommand(bundleIdentifier),
-		let url = runAppleScript(source: script)
-	{
-		output["url"] = url
-	}
-
 	return output
 }
 
