@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
 	name: "ActiveWin",
-	platforms: [.macOS(.v13)],
+	platforms: [.macOS(.v12)],
 	products: [
 		.executable(
 			name: "active-win",
