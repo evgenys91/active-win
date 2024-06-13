@@ -15,13 +15,23 @@ func toJson<T>(_ data: T) throws -> String {
 
 // Show the system prompt if there's no permission.
 func hasScreenRecordingPermission() -> Bool {
-	CGDisplayStream(
-		dispatchQueueDisplay: CGMainDisplayID(),
-		outputWidth: 1,
-		outputHeight: 1,
-		pixelFormat: Int32(kCVPixelFormatType_32BGRA),
-		properties: nil,
-		queue: DispatchQueue.global(),
-		handler: { _, _, _, _ in }
-	) != nil
+	if #available(macOS 13, *) {
+        return CGDisplayStream(
+            dispatchQueueDisplay: CGMainDisplayID(),
+            outputWidth: 1,
+            outputHeight: 1,
+            pixelFormat: Int32(kCVPixelFormatType_32BGRA),
+            properties: nil,
+            queue: DispatchQueue.global(),
+            handler: { _, _, _, _ in }
+        ) != nil
+    } else {
+        let image = CGWindowListCreateImage(
+            .infinite,
+            .optionOnScreenOnly,
+            kCGNullWindowID,
+            .bestResolution
+        )
+        return image != nil
+    }
 }
